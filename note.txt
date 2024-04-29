@@ -4,6 +4,7 @@ sudo apt-get update -y
 sudo apt install apache2 mysql-client mysql-server php libapache2-mod-php -y
 sudo apt install graphviz aspell ghostscript clamav php8.1-pspell php8.1-curl php8.1-gd php8.1-intl php8.1-mysql php8.1-xml php8.1-xmlrpc php8.1-ldap php8.1-zip php8.1-soap php8.1-mbstring -y
 sudo service apache2 start
+sudo systemctl enable apache2
 
 Composer : 
 sudo apt install php-cli
@@ -13,7 +14,6 @@ HASH=$(curl -sS https://composer.github.io/installer.sig)
 php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('/tmp/composer-setup.php'); } echo PHP_EOL;"
 sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer
 
-
 composer update
 
 EFS :
@@ -21,9 +21,13 @@ sudo apt-get update
 sudo apt-get install -y binutils
 git clone https://github.com/aws/efs-utils
 cd efs-utils
+sudo chmod -Rv 700 /home/ubuntu/efs-utils/build/
 
 sudo apt-get install -y binutils gcc make
 sudo apt-get install -y libssl-dev libcurl4-openssl-dev libfuse-dev
+
+curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
+source $HOME/.cargo/env
 
 ./build-deb.sh
 sudo apt-get install -y ./build/amazon-efs-utils*deb
@@ -41,3 +45,6 @@ sudo mv {origin} {new}
 
 - get .env (laravel)
 cp -r .env.example .env
+
+- full permision
+sudo chmod -Rv 700 /folder
