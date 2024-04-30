@@ -48,3 +48,8 @@ cp -r .env.example .env
 
 - full permision
 sudo chmod -Rv 700 /folder
+
+- Laravel
+sudo nano ../public/.htaccess
+RewriteEngine On
+RewriteRule ^(.*)$ index.php/$1 [L]
