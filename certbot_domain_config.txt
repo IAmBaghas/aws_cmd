@@ -1,0 +1,46 @@
+server {
+    listen 80;
+    server_name lks.smkn4bogor.sch.id;
+    include snippets/letsencrypt.conf;
+    return 301 https://$host$request_uri;
+}
+
+server {
+    listen 443 ssl http2;
+    server_name lks.smkn4bogor.sch.id;
+    root /var/www/html;
+
+    add_header X-Frame-Options "SAMEORIGIN";
+    add_header X-Content-Type-Options "nosniff";
+
+    index index.php;
+
+    charset utf-8;
+
+    location / {
+        try_files $uri $uri/ /index.php?$query_string;
+    #auth_basic           "Login Area";
+    #auth_basic_user_file /etc/nginx/web-auth/.htpasswd;
+}
+    location = /favicon.ico { access_log off; log_not_found off; }
+    location = /robots.txt  { access_log off; log_not_found off; }
+
+    error_page 404 /index.php;
+
+    location ~ \.php$ {
+        fastcgi_pass unix:/var/run/php/php8.1-fpm.sock;
+        fastcgi_param SCRIPT_FILENAME $realpath_root$fastcgi_script_name;
+        include fastcgi_params;
+    }
+
+    location ~ /\.(?!well-known).* {
+        deny all;
+    }
+
+       ssl_certificate /etc/letsencrypt/live/lks.smkn4bogor.sch.id/fullchain.pem;
+       ssl_certificate_key /etc/letsencrypt/live/lks.smkn4bogor.sch.id/privkey.pem;
+	 ssl_trusted_certificate /etc/letsencrypt/live/lks.smkn4bogor.sch.id/chain.pem;
+	 include snippets/ssl.conf;
+       include snippets/letsencrypt.conf;
+
+}
