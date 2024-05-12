@@ -1,0 +1,66 @@
+const aws_var = require('aws-sdk');
+const db_var = new aws_var.DynamoDB.DocumentClient();
+
+exports.handler = async function (event, context) {
+  // Get Data form db
+  let connections;
+  try {
+    connections = await db_var.scan({
+      TableName: process.env.table
+    })
+    .promise();
+  }
+  catch(err) {
+    console.error("Koneksi Error", err);
+    return {
+      statusCode: 500,
+    };
+  }
+  
+  const callbackAPI = new aws_var.ApiGatewayManagementApi({
+    apiVersion: '2018-11-29',
+    endpoint: 
+      event.requestContext.domainName + '/' + event.requestContext.stage
+  });
+  
+  // Get Data from Request Body
+  const message = JSON.parse(event.body)
+    .message;
+  
+  const sendMessage = connections.Items.map(async ({connectionId}) => {
+    if (connectionId !== event.requestContext.connectionId) {
+      try {
+        await callbackAPI.postToConnection({
+          ConnectionId: connectionId,
+          Data: message
+        })
+        .promise();
+      }
+      catch(err) {
+        console.error(err);
+      }
+    }
+  });
+  
+  try {
+    await Promise.all(sendMessage);
+    await db_var.put({
+      TableName: process.env.table,
+      Item: {
+        timestamp: Date.now(),
+        message: message
+      }
+    })
+    .promise();
+  }
+  catch(err) {
+    console.error("Data gagal disimpan", err);
+    return {
+      statusCode: 500
+    };
+  }
+  
+  return {
+    statusCode: 200
+  };
+};
