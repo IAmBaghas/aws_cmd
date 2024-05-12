@@ -1,0 +1,36 @@
+const aws_var = require('aws-sdk')
+
+exports.handler = async function (event, context) {
+  let connectionInfo
+  let connectionId = event.requestContext.connectionId
+  
+  const callbackAPI = new aws_var.ApiGatewayManagementApi({
+    apiVersion: '2018-11-29',
+    endpoint: 
+      event.requestContext.domainName + '/' + event.requestContext.stage
+  })
+  
+  try {
+    connectionInfo = await callbackAPI
+      .getConnection({
+        ConnectionId: event.requestContext.connectionId
+      })
+      .promise()
+  }
+  catch(err) {
+    console.log(err)
+  }
+  
+  connectionInfo.connectionID = connectionId
+  await callbackAPI 
+    .postToConnection({
+      ConnectionId: event.requestContext.connectionId,
+      Data: 
+        'Data Terkirim' + JSON.stringify(connectionInfo),
+    })
+    .promise()
+    
+  return {
+    statusCode: 200,
+  }  
+};
