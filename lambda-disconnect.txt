@@ -1,0 +1,17 @@
+const aws_var = require('aws-sdk')
+const db_var = new aws_var.DynamoDB.DocumentClient()
+
+exports.handler = async function (event, context) {
+  // TODO implement
+  await db_var
+    .delete({
+      TableName: process.env.table,
+      Key: {
+        connectionId: event.requestContext.connectionId, 
+      }
+    })
+    .promise()
+  return {
+    statusCode: 200
+  }
+};
