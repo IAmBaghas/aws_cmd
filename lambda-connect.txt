@@ -1,0 +1,25 @@
+const aws_var = require('aws-sdk')
+const db_var = new aws_var.DynamoDB.DocumentClient()
+
+
+exports.handler = async function (event, context) {
+  // TODO implement
+  try{
+    await db_var
+      .put ({
+        TableName: process.env.table,
+        Item: {
+          connectionId : event.requestContext.connectionId, 
+        },  
+      })
+      .promise()
+  } 
+  catch(err) {
+    return{
+      statusCode: 500
+    }
+  }
+  return {
+    statusCode: 200
+  }
+};
