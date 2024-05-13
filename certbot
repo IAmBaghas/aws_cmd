@@ -1,0 +1,29 @@
+sudo apt update
+sudo apt install certbot
+
+sudo openssl dhparam -out /etc/ssl/certs/dhparam.pem 2048
+
+mkdir -p /var/lib/letsencrypt/.well-known
+chgrp www-data /var/lib/letsencrypt
+chmod g+s /var/lib/letsencrypt
+
+# ke letsencrypt.conf
+sudo nano /etc/nginx/snippets/letsencrypt.conf
+
+# ke ssl.conf
+sudo nano /etc/nginx/snippets/ssl.conf
+
+# sesuaikan nama lalu tambahkan snippet
+sudo nano /etc/nginx/sites-available/example.com
+
+sudo ln -s /etc/nginx/sites-available/example.com /etc/nginx/sites-enabled/
+
+sudo systemctl restart nginx
+
+#email dan domain sesuaikan
+sudo certbot certonly --agree-tos --email admin@example.com --webroot -w /var/lib/letsencrypt/ -d example.com -d www.example.com
+
+# ke certbot_domain_config
+sudo nano /etc/nginx/sites-available/example.com
+
+sudo systemctl restart nginx
