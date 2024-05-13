@@ -19,3 +19,10 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+
+:loop
+mosquitto_pub -h <your-endpoint>.iot.<region>.amazonaws.com -p 8883 --cafile <path-to-rootCA.pem> --cert <path-to-certificate.pem.crt> --key <path-to-private.pem.key> -t <your-topic> -f sensor_data.json
+timeout /t 10
+goto loop
