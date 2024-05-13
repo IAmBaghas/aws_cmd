@@ -9,30 +9,39 @@ sudo systemctl enable apache2
 
 sudo apt install php-cli -y
 sudo apt install unzip -y
+
+cd /var/www
+sudo mkdir /var/www/laravel
+sudo chown -R www-data:www-data /var/www/laravel
+sudo chmod 755 /var/www/laravel
+sudo git clone https://github.com/IAmBaghas/testcrud.git /var/www/laravel
+cd laravel
+
 curl -sS https://getcomposer.org/installer -o /tmp/composer-setup.php 
 HASH=$(curl -sS https://composer.github.io/installer.sig)
 php -r "if (hash_file('SHA384', '/tmp/composer-setup.php') === '$HASH') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('/tmp/composer-setup.php'); } echo PHP_EOL;"
 sudo php /tmp/composer-setup.php --install-dir=/usr/local/bin --filename=composer -y
 
-cd /var/www
-sudo mkdir /var/www/laravel
-sudo chmod 755 /var/www/laravel
+sudo chmod 755 /var/www/laravel/public
+sudo chown -R www-data:www-data /var/www/laravel/storage
+sudo chown -R www-data:www-data /var/www/laravel/bootstrap/cache
 
-sudo git clone https://github.com/IAmBaghas/testcrud.git /var/www/laravel
-cd laravel
 sudo sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/laravel/public|g' /etc/apache2/sites-available/000-default.conf
-sudo service apache2 restart
+sudo a2enmod rewrite
+sudo systemctl restart apache2
+
+sudo COMPOSER_ALLOW_SUPERUSER=1 composer install --no-interaction
+
 sudo cp .env.example .env
+
+sudo php artisan key:generate --force
 
 sudo sed -i 's/DB_HOST=127.0.0.1/DB_HOST=dbwebsite.czu6g62s67yq.us-west-2.rds.amazonaws.com/g' .env
 sudo sed -i 's/DB_DATABASE=laravel/DB_DATABASE=db_website/g' .env
 sudo sed -i 's/DB_USERNAME=root/DB_USERNAME=admin/g' .env
 sudo sed -i 's/DB_PASSWORD=/DB_PASSWORD=adminpass/g' .env
 
-user="admin"
-password="adminpass"
-host="dbwebsite.czu6g62s67yq.us-west-2.rds.amazonaws.com"
-db_name="db_website"
+sudo php artisan migrate
 
 mysql -u $user -p$password -h $host -e "CREATE DATABASE IF NOT EXISTS $db_name"
 
