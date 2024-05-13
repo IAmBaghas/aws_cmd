@@ -1,0 +1,36 @@
+import os
+import json
+import random
+import time
+
+# Function to generate random temperature and humidity data
+def generate_sensor_data():
+    timestamp = datetime.datetime.now().isoformat()
+    temperature = round(random.uniform(20.0, 30.0), 2)  # Random temperature between 20.0 and 30.0 Celsius
+    humidity = round(random.uniform(40.0, 60.0), 2)     # Random humidity between 40.0% and 60.0%
+    fire_intensity = round(random.uniform(0, 100), 2)  # Random fire intensity between 0 and 100
+    gas_concentration = round(random.uniform(0, 500), 2)  # Random gas concentration between 0 and 500 ppm
+    return {
+        "timestamp": timestamp,
+        "temperature": temperature,
+        "humidity": humidity,
+        "fire_intensity": fire_intensity,
+        "gas_concentration": gas_concentration
+    }
+
+if __name__ == '__main__':
+    # Generate sensor data and write it to a file
+    try:
+        while True:
+            sensor_data = generate_sensor_data()
+            message = json.dumps(sensor_data)
+            with open('sensor_data.json', 'w') as f:
+                f.write(message)
+            print(f"Generated sensor data: {message}")
+            time.sleep(10)  # Generate new sensor data every 10 seconds
+    except KeyboardInterrupt:
+        pass
+
+
+
+mosquitto_pub -h <your-endpoint>.iot.<region>.amazonaws.com -p 8883 --cafile <path-to-rootCA.pem> --cert <path-to-certificate.pem.crt> --key <path-to-private.pem.key> -t <your-topic> -f sensor_data.json
