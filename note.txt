@@ -53,3 +53,6 @@ sudo chmod -Rv 700 /folder
 sudo nano ../public/.htaccess
 RewriteEngine On
 RewriteRule ^(.*)$ index.php/$1 [L]
+
+- Delete folder
+sudo rm -rf folderName
