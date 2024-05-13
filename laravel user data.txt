@@ -20,6 +20,8 @@ sudo chmod 755 /var/www/laravel
 
 sudo git clone https://github.com/IAmBaghas/testcrud.git /var/www/laravel
 cd laravel
+sudo sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/laravel/public|g' /etc/apache2/sites-available/000-default.conf
+sudo service apache2 restart
 sudo cp .env.example .env
 
 sudo sed -i 's/DB_HOST=127.0.0.1/DB_HOST=dbwebsite.czu6g62s67yq.us-west-2.rds.amazonaws.com/g' .env
