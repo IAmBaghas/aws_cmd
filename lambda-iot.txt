@@ -1,0 +1,37 @@
+import boto3
+import json
+import base64
+
+def lambda_handler(event, context):
+    try:
+        # Mengambil data dari event
+        records = event['Records']
+        
+        # Membuat koneksi ke Kinesis Data Firehose
+        firehose_client = boto3.client('firehose')
+        
+        # Memproses setiap rekaman
+        for record in records:
+            # Memperoleh data dari rekaman
+            data = record['kinesis']['data']
+            
+            # Melakukan pemrosesan data (misalnya, dekompresi jika diperlukan)
+            decoded_data = base64.b64decode(data).decode('utf-8')
+            
+            # Mengirim data yang diproses ke Kinesis Data Firehose
+            response = firehose_client.put_record(
+                DeliveryStreamName='lks-ds',
+                Record={
+                    'Data': json.dumps({'statusCode': 200, 'data': decoded_data})
+                }
+            )
+        
+        return {
+            'statusCode': 200,
+            'body': json.dumps('Data berhasil diproses dan disimpan di Kinesis Data Firehose')
+        }
+    except Exception as e:
+        return {
+            'statusCode': 500,
+            'body': json.dumps('Terjadi kesalahan dalam pemrosesan data: {}'.format(str(e)))
+        }
